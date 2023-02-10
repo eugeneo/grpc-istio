@@ -4,9 +4,14 @@
 
 #include "proto/echo-service.grpc.pb.h"
 
-int main() {
+int main(int argc, char *argv[]) {
+  const char *address = "localhost:4004";
+  if (argc > 1) {
+    address = argv[1];
+  }
+  std::cout << "Connecting to " << address << std::endl;
   auto channel =
-      grpc::CreateChannel("localhost:4004", grpc::InsecureChannelCredentials());
+      grpc::CreateChannel(address, grpc::InsecureChannelCredentials());
   auto client = EchoService::NewStub(std::move(channel));
   EchoRequest req;
   req.set_query("q");
