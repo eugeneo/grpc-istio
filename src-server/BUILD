@@ -14,6 +14,6 @@ cc_binary(
 cc_image(
   name = "echo_server_image",
   binary = ":echo_server",
-  ports = [4004],
+  ports = ["4004:4004"],
   base = "@ubuntu_22_04//image"
 )

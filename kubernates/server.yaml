@@ -30,7 +30,7 @@ spec:
     - name: grpc
       port: 4004
       targetPort: 4004
-  type: LoadBalancer
+  # type: LoadBalancer
 ---
 apiVersion: networking.k8s.io/v1
 kind: Ingress

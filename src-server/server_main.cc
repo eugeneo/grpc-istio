@@ -38,6 +38,6 @@ void RunServer(const std::string &address, const std::string &id) {
 }
 
 int main() {
-  RunServer("127.0.0.1:4004", "id");
+  RunServer("0.0.0.0:4004", "id");
   return 0;
 }
