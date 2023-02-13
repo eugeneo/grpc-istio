@@ -6,6 +6,11 @@
 
 #include "proto/echo-service.grpc.pb.h"
 
+#include "absl/flags/flag.h"
+#include "absl/flags/parse.h"
+
+ABSL_FLAG(std::string, id, "<id_unset>", "Instance id for logging purposes");
+
 class EchoServiceImpl final : public EchoService::Service {
 public:
   explicit EchoServiceImpl(const std::string &id) : id_(id) {}
@@ -37,7 +42,8 @@ void RunServer(const std::string &address, const std::string &id) {
   server->Wait();
 }
 
-int main() {
-  RunServer("0.0.0.0:4004", "id");
+int main(int argc, char *argv[]) {
+  absl::ParseCommandLine(argc, argv);
+  RunServer("0.0.0.0:4004", absl::GetFlag(FLAGS_id));
   return 0;
 }

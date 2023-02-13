@@ -7,10 +7,12 @@ WORKDIR /app
 EXPOSE 4004
 
 # Copy the pre-built executable into the container
-COPY echo_server .
+COPY echo-server .
 
 # Make the executable executable
-RUN chmod +x /app/echo_server
+RUN chmod +x /app/echo-server
 
 # Set the default command to run when the container starts
-CMD ["/app/echo_server"]
+ENTRYPOINT ["/app/echo-server"]
+
+CMD [ "/app/echo-server" ]

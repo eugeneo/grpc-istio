@@ -43,8 +43,8 @@ while [ "$1" != "" ]; do
 done
 
 if [ $build_server -eq 1 ]; then
+    bazel build //src-server:echo-server
     echo "Building Docker image"
-    bazel build //src-server:echo_server
     docker build -t ${SERVER_IMAGE_TAG} -f src-server/Dockerfile bazel-bin/src-server
 fi
 

@@ -13,15 +13,15 @@ http_archive(
 
 http_archive(
     name = "com_google_googleapis",
-    sha256 = "a315ccc3efa4fbe3dcb8e9dd0b1aad2e7c9b5a39dcf5ef9f1d7cb408888e4a49",
-    strip_prefix = "googleapis-7a702a989db3b413f39ff8994ca53fb38b6928c2",
-    urls = ["https://github.com/googleapis/googleapis/archive/7a702a989db3b413f39ff8994ca53fb38b6928c2.zip"],
+    sha256 = "22723dcd7fc9d188fad07595cfe82b45394e0350a4f090aa65b1478107a4d126",
+    strip_prefix = "googleapis-3b9ae88062e8f0f6603cc8bcba945197cc60d314",
+    urls = ["https://github.com/googleapis/googleapis/archive/3b9ae88062e8f0f6603cc8bcba945197cc60d314.zip"],
 )
 
 http_archive(
     name = "rules_python",
-    url = "https://github.com/bazelbuild/rules_python/releases/download/0.18.0/rules_python-0.18.0.tar.gz",
-    sha256 = "36362b4d54fcb17342f9071e4c38d63ce83e2e57d7d5599ebdde4670b9760664",
+    url = "https://github.com/bazelbuild/rules_python/releases/download/0.2.0/rules_python-0.2.0.tar.gz",
+    sha256 = "778197e26c5fbeb07ac2a2c5ae405b30f6cb7ad1f5510ea6fdac03bded96cc6f",
 )
 
 http_archive(
@@ -130,4 +130,12 @@ container_pull(
   name = "ubuntu_22_04",
   registry = "docker.io",
   repository = "library/ubuntu",
+)
+
+load("@bazel_tools//tools/build_defs/repo:http.bzl", "http_archive")
+
+http_archive(
+  name = "com_google_absl",
+  urls = ["https://github.com/abseil/abseil-cpp/archive/115aac772c23907df48e298ebee04154bb2805c5.zip"],
+  strip_prefix = "abseil-cpp-115aac772c23907df48e298ebee04154bb2805c5",
 )
