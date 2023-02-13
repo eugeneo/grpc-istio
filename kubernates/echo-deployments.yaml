@@ -15,7 +15,12 @@ spec:
       containers:
         - name: echo-server
           image: grpc-istio-test:latest
-          args: ["--id=t2.1"]
+          env:
+            - name: POD_NAME
+              valueFrom:
+                fieldRef:
+                  fieldPath: metadata.name
+          args: ["--id=$(POD_NAME)"]
           ports:
             - containerPort: 4004
           imagePullPolicy: Never
@@ -36,7 +41,16 @@ spec:
     spec:
       containers:
         - name: echo-server
-          args: ["--id=t1.1", "--backend_url=echo-backend-service:4004"]
+          env:
+            - name: POD_NAME
+              valueFrom:
+                fieldRef:
+                  fieldPath: metadata.name
+            - name: GRPC_TRACE
+              value: cds_lb,glb,round_robin,xds_client,xds_resolver
+            - name: GRPC_VERBOSITY
+              value: INFO
+          args: ["--id=$(POD_NAME)", "--backend_url=echo-backend-service:4004"]
           image: grpc-istio-test:latest
           ports:
             - containerPort: 4004
