@@ -14,7 +14,7 @@ spec:
     spec:
       containers:
         - name: echo-server
-          image: bazel/src-server:echo_server_image
+          image: grpc-istio-test:latest
           ports:
             - containerPort: 4004
           imagePullPolicy: Never
@@ -30,7 +30,7 @@ spec:
     - name: grpc
       port: 4004
       targetPort: 4004
-  # type: LoadBalancer
+  type: NodePort
 ---
 apiVersion: networking.k8s.io/v1
 kind: Ingress
