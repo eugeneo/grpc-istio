@@ -1,54 +1,10 @@
-apiVersion: apps/v1
-kind: Deployment
-metadata:
-  name: echo-server-t2-deployment
-spec:
-  replicas: 1
-  selector:
-    matchLabels:
-      app: echo-server-t2
-  template:
-    metadata:
-      labels:
-        app: echo-server-t2
-    spec:
-      containers:
-        - name: echo-server-t2
-          args: ["--id=t2.1"]
-          image: grpc-istio-test:latest
-          ports:
-            - containerPort: 4004
-          imagePullPolicy: Never
----
-apiVersion: apps/v1
-kind: Deployment
-metadata:
-  name: echo-server-t1-deployment
-spec:
-  replicas: 1
-  selector:
-    matchLabels:
-      app: echo-server-t1
-  template:
-    metadata:
-      labels:
-        app: echo-server-t1
-    spec:
-      containers:
-        - name: echo-server
-          args: ["--id=t1.1", "--backend_url=echo-server-service-t2:4004"]
-          image: grpc-istio-test:latest
-          ports:
-            - containerPort: 4004
-          imagePullPolicy: Never
----
 apiVersion: v1
 kind: Service
 metadata:
-  name: echo-server-service
+  name: echo-frontend-service
 spec:
   selector:
-    app: echo-server-t1
+    app: echo-frontend
   ports:
     - name: grpc
       port: 4004
@@ -58,10 +14,10 @@ spec:
 apiVersion: v1
 kind: Service
 metadata:
-  name: echo-server-service-t2
+  name: echo-backend-service
 spec:
   selector:
-    app: echo-server-t2
+    app: echo-backend
   ports:
     - name: grpc
       port: 4004

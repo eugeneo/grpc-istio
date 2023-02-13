@@ -1,7 +1,7 @@
 #!/bin/bash
 
 KUBERNATES_NAMESPACE=${KUBERNATES_NAMESPACE:-k8s-grpc-istio-test}
-
+FRONTEND_SERVICE=${FRONTEND_SERVICE:-echo-frontend-service}
 SERVER_IMAGE_TAG=${SERVER_IMAGE_TAG:-grpc-istio-test:latest}
 SERVER_CONTAINER_NAME=${SERVER_CONTAINER_NAME:-grpc-istio-test}
 SERVER_HOST=${SERVER_HOST:-127.0.0.1}
@@ -54,11 +54,13 @@ if [ $build_server -eq 1 ]; then
     bazel build //src-server:echo-server
     echo "Building Docker image"
     docker build -t ${SERVER_IMAGE_TAG} -f src-server/Dockerfile bazel-bin/src-server
+    kubectl -n ${KUBERNATES_NAMESPACE} rollout restart -f kubernates/echo-deployments.yaml
 fi
 
 if [ $start_server -eq 1 ]; then
     echo "Starting gRPC server"
-    docker run --name ${SERVER_CONTAINER_NAME} -it -p ${SERVER_HOST}:${SERVER_PORT}:4004 ${SERVER_IMAGE_TAG}
+    docker run --name ${SERVER_CONTAINER_NAME} -it \
+      -p ${SERVER_HOST}:${SERVER_PORT}:4004 ${SERVER_IMAGE_TAG}
 fi
 
 if [ $stop_server -eq 1 ]; then
@@ -74,23 +76,20 @@ fi
 if [ $deploy_server -eq 1 ]; then
     echo "Deploying server to Kubernates"
     kubectl create namespace ${KUBERNATES_NAMESPACE}
-    kubectl -n ${KUBERNATES_NAMESPACE} apply -f kubernates/server.yaml
-    # Wait for the pod to be ready. If success, get URL from minikube
-    # kubectl -n ${KUBERNATES_NAMESPACE} wait --for=condition=Ready pod/${SERVER_CONTAINER_NAME}
-    # minikube service ${SERVER_CONTAINER_NAME} -n ${KUBERNATES_NAMESPACE} --url
+    kubectl -n ${KUBERNATES_NAMESPACE} apply -f kubernates
 fi
 
 if [ $undeploy_server -eq 1 ]; then
     echo "Undeploying server"
-    kubectl -n ${KUBERNATES_NAMESPACE} delete -f kubernates/server.yaml
+    kubectl -n ${KUBERNATES_NAMESPACE} delete -f kubernates
 fi
 
 if [ $print_url -eq 1 ]; then
-    minikube -n ${KUBERNATES_NAMESPACE} service echo-server-service --url
+    minikube -n ${KUBERNATES_NAMESPACE} service ${FRONTEND_SERVICE} --url
 fi
 
 if [ $start_k8_client -eq 1 ]; then
-    backend_url_prefixed=$(minikube -n ${KUBERNATES_NAMESPACE} service echo-server-service --url)
+    backend_url_prefixed=$(minikube -n ${KUBERNATES_NAMESPACE} service ${FRONTEND_SERVICE} --url)
     backend_url=${backend_url_prefixed#http://}
     echo "Running a client to connect to ${backend_url}"
     bazel run //src-client:echo-client -- ${backend_url}
