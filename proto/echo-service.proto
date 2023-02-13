@@ -5,6 +5,8 @@ message EchoRequest {
 message EchoResponse {
   optional string query = 1;
   required string instance_id = 2;
+  optional EchoResponse response = 3;
+  optional string error = 4;
 }
 
 service EchoService {

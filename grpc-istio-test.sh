@@ -9,7 +9,9 @@ SERVER_PORT=${SERVER_PORT:-4004}
 
 build_server=0
 deploy_server=0
+print_url=0
 start_client=0
+start_k8_client=0
 start_server=0
 stop_server=0
 undeploy_server=0
@@ -24,8 +26,14 @@ while [ "$1" != "" ]; do
         --deploy-server)
           deploy_server=1
             ;;
+        --print-url)
+            print_url=1
+            ;;
         --start-client)
             start_client=1
+            ;;
+        --start-k8-client)
+            start_k8_client=1
             ;;
         --start-server)
             start_server=1
@@ -75,4 +83,15 @@ fi
 if [ $undeploy_server -eq 1 ]; then
     echo "Undeploying server"
     kubectl -n ${KUBERNATES_NAMESPACE} delete -f kubernates/server.yaml
+fi
+
+if [ $print_url -eq 1 ]; then
+    minikube -n ${KUBERNATES_NAMESPACE} service echo-server-service --url
+fi
+
+if [ $start_k8_client -eq 1 ]; then
+    backend_url_prefixed=$(minikube -n ${KUBERNATES_NAMESPACE} service echo-server-service --url)
+    backend_url=${backend_url_prefixed#http://}
+    echo "Running a client to connect to ${backend_url}"
+    bazel run //src-client:echo-client -- ${backend_url}
 fi

@@ -1,20 +1,42 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: echo-server-deployment
+  name: echo-server-t2-deployment
 spec:
   replicas: 1
   selector:
     matchLabels:
-      app: echo-server
+      app: echo-server-t2
   template:
     metadata:
       labels:
-        app: echo-server
+        app: echo-server-t2
+    spec:
+      containers:
+        - name: echo-server-t2
+          args: ["--id=t2.1"]
+          image: grpc-istio-test:latest
+          ports:
+            - containerPort: 4004
+          imagePullPolicy: Never
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: echo-server-t1-deployment
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: echo-server-t1
+  template:
+    metadata:
+      labels:
+        app: echo-server-t1
     spec:
       containers:
         - name: echo-server
-          args: ["--id=POD1"]
+          args: ["--id=t1.1", "--backend_url=echo-server-service-t2:4004"]
           image: grpc-istio-test:latest
           ports:
             - containerPort: 4004
@@ -26,32 +48,24 @@ metadata:
   name: echo-server-service
 spec:
   selector:
-    app: echo-server
+    app: echo-server-t1
   ports:
     - name: grpc
       port: 4004
       targetPort: 4004
   type: NodePort
 ---
-apiVersion: networking.k8s.io/v1
-kind: Ingress
+apiVersion: v1
+kind: Service
 metadata:
-  name: echo-service-ingress
-  annotations:
-    nginx.ingress.kubernetes.io/rewrite-target: /
-    nginx.ingress.kubernetes.io/backend-protocol: "GRPC"
+  name: echo-server-service-t2
 spec:
-  ingressClassName: nginx
-  rules:
-    - http:
-        paths:
-          - path: /
-            pathType: Prefix
-            backend:
-              service:
-                name: echo-server-service
-                port:
-                  number: 4004
+  selector:
+    app: echo-server-t2
+  ports:
+    - name: grpc
+      port: 4004
+      targetPort: 4004
 ---
 apiVersion: networking.istio.io/v1alpha3
 kind: VirtualService
