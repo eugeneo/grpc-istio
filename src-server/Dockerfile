@@ -6,7 +6,10 @@ WORKDIR /app
 # Expose port 4004
 EXPOSE 4004
 
-# Copy the pre-built executable into the container
+RUN apt-get update && \
+  apt-get install -y curl && \
+  rm -rf /var/lib/apt/lists/*
+
 COPY echo-server .
 
 # Make the executable executable

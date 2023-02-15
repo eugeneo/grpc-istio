@@ -52,9 +52,10 @@ done
 
 if [ $build_server -eq 1 ]; then
     bazel build //src-server:echo-server
+    mkdir _docker-build.tmp
     echo "Building Docker image"
-    docker build -t ${SERVER_IMAGE_TAG} -f src-server/Dockerfile bazel-bin/src-server
-    kubectl -n ${KUBERNATES_NAMESPACE} rollout restart -f kubernates/echo-deployments.yaml
+    docker build -t ${SERVER_IMAGE_TAG} -f src-server/Dockerfile bazel-bin/src-server/
+    kubectl rollout restart -f kubernates/echo-deployments.yaml
 fi
 
 if [ $start_server -eq 1 ]; then
@@ -75,13 +76,12 @@ fi
 
 if [ $deploy_server -eq 1 ]; then
     echo "Deploying server to Kubernates"
-    kubectl create namespace ${KUBERNATES_NAMESPACE}
-    kubectl -n ${KUBERNATES_NAMESPACE} apply -f kubernates
+    kubectl apply -f kubernates
 fi
 
 if [ $undeploy_server -eq 1 ]; then
     echo "Undeploying server"
-    kubectl -n ${KUBERNATES_NAMESPACE} delete -f kubernates
+    kubectl delete -f kubernates
 fi
 
 if [ $print_url -eq 1 ]; then

@@ -1,14 +1,49 @@
+syntax = "proto3";
+
+message Header {
+  string name = 1;
+  string value = 2;
+}
+
 message EchoRequest {
-  optional string query = 1;
+  string query = 1;
+  string backend_url = 2;
 }
 
 message EchoResponse {
-  optional string query = 1;
-  required string instance_id = 2;
-  optional EchoResponse response = 3;
-  optional string error = 4;
+  string query = 1;
+  string instance_id = 2;
+  EchoResponse response = 3;
+  string error = 4;
+}
+
+message FrontendRequest {
+  string backend_url = 1;
+  uint32 num_requests = 2;
+  repeated Header metadata = 3;
+}
+
+message FrontendResponse {
+  string peer = 1;
+  repeated Header metadata = 2;
+  message ResponseOrError {
+    message Error {
+      uint32 code = 1;
+      string message = 2;
+      string details = 3;
+    }
+    oneof ResponseOrErrorUnion {
+      EchoResponse response = 1;
+      Error error = 2;
+    }
+  }
+  repeated ResponseOrError responses = 3;
 }
 
 service EchoService {
   rpc SendEcho(EchoRequest) returns (EchoResponse);
+}
+
+service FrontendService {
+  rpc CallBackend(FrontendRequest) returns (FrontendResponse);
 }

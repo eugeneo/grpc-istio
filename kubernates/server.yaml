@@ -1,7 +1,15 @@
 apiVersion: v1
+kind: Namespace
+metadata:
+  name: k8s-grpc-istio-test
+  labels:
+    istio-injection: enabled
+---
+apiVersion: v1
 kind: Service
 metadata:
   name: echo-frontend-service
+  namespace: k8s-grpc-istio-test
 spec:
   selector:
     app: echo-frontend
@@ -15,6 +23,7 @@ apiVersion: v1
 kind: Service
 metadata:
   name: echo-backend-service
+  namespace: k8s-grpc-istio-test
 spec:
   selector:
     app: echo-backend
@@ -27,16 +36,17 @@ apiVersion: networking.istio.io/v1alpha3
 kind: VirtualService
 metadata:
   name: echo-server-virtual-service
+  namespace: k8s-grpc-istio-test
 spec:
   hosts:
-    - "*"
-  gateways:
-    - echo-server-gateway
+    - "istio-echo-backend"
+  # gateways:
+  #   - echo-server-gateway
   http:
     - match:
         - port: 4004
       route:
         - destination:
-            host: echo-server
+            host: echo-backend-service
             port:
               number: 4004

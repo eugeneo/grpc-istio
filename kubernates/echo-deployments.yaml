@@ -2,6 +2,7 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: echo-backend
+  namespace: k8s-grpc-istio-test
 spec:
   replicas: 3
   selector:
@@ -29,6 +30,7 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: echo-frontend
+  namespace: k8s-grpc-istio-test
 spec:
   replicas: 1
   selector:
@@ -38,6 +40,9 @@ spec:
     metadata:
       labels:
         app: echo-frontend
+      annotations:
+        inject.istio.io/templates: grpc-agent
+        proxy.istio.io/config: '{"holdApplicationUntilProxyStarts": true}'
     spec:
       containers:
         - name: echo-server
@@ -50,7 +55,7 @@ spec:
               value: cds_lb,glb,round_robin,xds_client,xds_resolver
             - name: GRPC_VERBOSITY
               value: INFO
-          args: ["--id=$(POD_NAME)", "--backend_url=echo-backend-service:4004"]
+          args: ["--id=$(POD_NAME)", "--frontend"]
           image: grpc-istio-test:latest
           ports:
             - containerPort: 4004
