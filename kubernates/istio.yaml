@@ -1,0 +1,50 @@
+apiVersion: networking.istio.io/v1alpha3
+kind: VirtualService
+metadata:
+  name: echo-server-virtual-service
+  namespace: k8s-grpc-istio-test
+spec:
+  hosts:
+    - "istio-echo-backend"
+  http:
+    - match:
+        - port: 4004
+      route:
+        - destination:
+            host: echo-backend-service
+            port:
+              number: 4004
+---
+apiVersion: networking.istio.io/v1alpha3
+kind: EnvoyFilter
+metadata:
+  name: stateful
+  namespace: k8s-grpc-istio-test
+spec:
+  configPatches:
+    - applyTo: HTTP_FILTER
+      match:
+        listener:
+          # portNumber: 9081
+          filterChain:
+            filter:
+              name: "envoy.filters.network.http_connection_manager"
+              subFilter:
+                name: "envoy.filters.http.router"
+      patch:
+        operation: INSERT_BEFORE
+        value:
+          name: envoy.filters.http.stateful_session
+          typed_config:
+            "@type": type.googleapis.com/envoy.extensions.filters.http.stateful_session.v3.StatefulSession
+            session_state:
+              name: envoy.http.stateful_session.cookie
+              typed_config:
+                "@type": type.googleapis.com/envoy.extensions.http.stateful_session.cookie.v3.CookieBasedSessionState
+                cookie:
+                  # Name of the cookie
+                  name: gateway-session-cookie
+                  # Path to set. Exercise caution here, as https://github.com/envoyproxy/envoy/issues/19655 may break persistence
+                  path: /
+                  # TTL of cookie. Can be set to 0 for session based
+                  # ttl: 120s

@@ -37,9 +37,20 @@ private:
       EchoRequest backend_req;
       EchoResponse backend_res;
       grpc::ClientContext ctx;
-      backend_req.set_query(absl::StrFormat("Request #%d", n));
+      backend_req.set_query(absl::StrFormat("Request #%d", n + 1));
+      for (int i = 0; i < request->metadata_size(); ++i) {
+        const auto &metadata = request->metadata(i);
+        ctx.AddMetadata(metadata.name(), metadata.value());
+      }
       auto status = backend->SendEcho(&ctx, backend_req, &backend_res);
       response->set_peer(context->peer());
+      for (const auto &name_value : ctx.GetServerInitialMetadata()) {
+        auto metadata = response->add_metadata();
+        metadata->set_name(
+            std::string(name_value.first.data(), name_value.first.length()));
+        metadata->set_value(
+            std::string(name_value.second.data(), name_value.second.length()));
+      }
       if (!status.ok()) {
         auto error = response->add_responses()->mutable_error();
         error->set_code(status.error_code());

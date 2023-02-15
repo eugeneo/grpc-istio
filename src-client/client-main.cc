@@ -21,7 +21,7 @@ void call(const std::unique_ptr<FrontendService::Stub> &client,
   if (status.ok()) {
     std::string msg;
     google::protobuf::TextFormat::PrintToString(res, &msg);
-    std::cout << "Success:\n" << msg << "\npeer: " << ctx.peer() << std::endl;
+    std::cout << "Success:\n" << msg << std::endl;
   } else {
     std::cerr << "Error: [" << status.error_code() << "] "
               << status.error_message() << "(" << status.error_details() << ")"

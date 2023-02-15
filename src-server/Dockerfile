@@ -6,6 +6,9 @@ WORKDIR /app
 # Expose port 4004
 EXPOSE 4004
 
+ENV GRPC_XDS_EXPERIMENTAL_ENABLE_RING_HASH=true
+ENV GRPC_EXPERIMENTAL_XDS_ENABLE_OVERRIDE_HOST=true
+
 RUN apt-get update && \
   apt-get install -y curl && \
   rm -rf /var/lib/apt/lists/*
