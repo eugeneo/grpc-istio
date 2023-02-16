@@ -10,8 +10,6 @@ kind: Service
 metadata:
   name: echo-frontend-service
   namespace: k8s-grpc-istio-test
-  annotations:
-    istio.io/persistent-session: "true"
 spec:
   selector:
     app: echo-frontend
@@ -26,8 +24,6 @@ kind: Service
 metadata:
   name: echo-backend-service
   namespace: k8s-grpc-istio-test
-  annotations:
-    istio.io/persistent-session: "true"
 spec:
   selector:
     app: echo-backend

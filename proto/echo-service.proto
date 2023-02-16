@@ -25,7 +25,8 @@ message FrontendRequest {
 
 message FrontendResponse {
   string peer = 1;
-  repeated Header metadata = 2;
+  repeated Header initial_metadata = 2;
+  repeated Header trailing_metadata = 3;
   message ResponseOrError {
     message Error {
       uint32 code = 1;
@@ -37,7 +38,11 @@ message FrontendResponse {
       Error error = 2;
     }
   }
-  repeated ResponseOrError responses = 3;
+  ResponseOrError response = 4;
+}
+
+message FrontendResponses {
+  repeated FrontendResponse responses = 1;
 }
 
 service EchoService {
@@ -45,5 +50,5 @@ service EchoService {
 }
 
 service FrontendService {
-  rpc CallBackend(FrontendRequest) returns (FrontendResponse);
+  rpc CallBackend(FrontendRequest) returns (FrontendResponses);
 }

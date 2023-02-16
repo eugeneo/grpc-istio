@@ -15,7 +15,7 @@ spec:
       annotations:
         inject.istio.io/templates: grpc-agent
         proxy.istio.io/config: '{"holdApplicationUntilProxyStarts": true}'
-        istio.io/persistent-session: "true"
+        istio.io/persistent-session: session-cookie:/EchoService/SendEcho
     spec:
       containers:
         - name: echo-server
@@ -47,7 +47,7 @@ spec:
       annotations:
         inject.istio.io/templates: grpc-agent
         proxy.istio.io/config: '{"holdApplicationUntilProxyStarts": true}'
-        istio.io/persistent-session: "true"
+        istio.io/persistent-session: session-cookie:/EchoService/SendEcho
     spec:
       containers:
         - name: echo-server

@@ -25,7 +25,7 @@ public:
 private:
   grpc::Status CallBackend(grpc::ServerContext *context,
                            const FrontendRequest *request,
-                           FrontendResponse *response) override {
+                           FrontendResponses *responses) override {
     std::cout << absl::StrFormat("Calling backend %s %d times",
                                  request->backend_url(),
                                  request->num_requests())
@@ -43,21 +43,29 @@ private:
         ctx.AddMetadata(metadata.name(), metadata.value());
       }
       auto status = backend->SendEcho(&ctx, backend_req, &backend_res);
+      auto response = responses->add_responses();
       response->set_peer(context->peer());
       for (const auto &name_value : ctx.GetServerInitialMetadata()) {
-        auto metadata = response->add_metadata();
+        auto metadata = response->add_initial_metadata();
+        metadata->set_name(
+            std::string(name_value.first.data(), name_value.first.length()));
+        metadata->set_value(
+            std::string(name_value.second.data(), name_value.second.length()));
+      }
+      for (const auto &name_value : ctx.GetServerTrailingMetadata()) {
+        auto metadata = response->add_trailing_metadata();
         metadata->set_name(
             std::string(name_value.first.data(), name_value.first.length()));
         metadata->set_value(
             std::string(name_value.second.data(), name_value.second.length()));
       }
       if (!status.ok()) {
-        auto error = response->add_responses()->mutable_error();
+        auto error = response->mutable_response()->mutable_error();
         error->set_code(status.error_code());
         error->set_message(status.error_message());
         error->set_details(status.error_details());
       } else {
-        *(response->add_responses()->mutable_response()) = backend_res;
+        *(response->mutable_response()->mutable_response()) = backend_res;
       }
     }
     return grpc::Status::OK;
@@ -79,6 +87,8 @@ private:
               << context->peer() << std::endl;
     response->set_instance_id(id_);
     response->set_query(request->query());
+    context->AddInitialMetadata("initial-metadata-host-id", id_);
+    context->AddTrailingMetadata("trailing-metadata-host-id", id_);
     return grpc::Status::OK;
   }
 

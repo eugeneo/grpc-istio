@@ -12,7 +12,7 @@
 void call(const std::unique_ptr<FrontendService::Stub> &client,
           absl::string_view query, absl::string_view url, size_t reqs) {
   std::cout << absl::StrFormat("Calling %s %d times", url, reqs) << std::endl;
-  FrontendResponse res;
+  FrontendResponses res;
   grpc::ClientContext ctx;
   FrontendRequest req;
   req.set_backend_url(std::string(url));
