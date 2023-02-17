@@ -87,8 +87,8 @@ private:
               << context->peer() << std::endl;
     response->set_instance_id(id_);
     response->set_query(request->query());
-    context->AddInitialMetadata("initial-metadata-host-id", id_);
-    context->AddTrailingMetadata("trailing-metadata-host-id", id_);
+    context->AddInitialMetadata("initial-metadata-host-id", "im " + id_);
+    context->AddTrailingMetadata("trailing-metadata-host-id", "tm " + id_);
     return grpc::Status::OK;
   }
 
@@ -123,7 +123,10 @@ void RunBackendServer(absl::string_view address, absl::string_view id) {
   server->Wait();
 }
 
-int main(int argc, char *argv[]) {
+int main(int argc, char *argv[], char **envp) {
+  for (auto i = envp; *i != nullptr; ++i) {
+    std::cout << *i << std::endl;
+  }
   absl::ParseCommandLine(argc, argv);
   if (absl::GetFlag(FLAGS_frontend)) {
     RunFrontendServer(absl::GetFlag(FLAGS_bind_address),

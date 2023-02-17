@@ -1,16 +1,33 @@
 apiVersion: networking.istio.io/v1alpha3
+kind: DestinationRule
+metadata:
+  name: echo-backend-service-sets
+  namespace: k8s-grpc-istio-test
+spec:
+  host: echo-backend-service
+  subsets:
+    - name: g1
+      labels:
+        group: g1
+    - name: g2
+      labels:
+        group: g2
+---
+apiVersion: networking.istio.io/v1beta1
 kind: VirtualService
 metadata:
-  name: echo-server-virtual-service
+  name: echo-weights
   namespace: k8s-grpc-istio-test
 spec:
   hosts:
-    - "istio-echo-backend"
+    - echo-backend-service
   http:
-    - match:
-        - port: 4004
-      route:
+    - route:
         - destination:
             host: echo-backend-service
-            port:
-              number: 4004
+            subset: g1
+          weight: 90
+        - destination:
+            host: echo-backend-service
+            subset: g2
+          weight: 10

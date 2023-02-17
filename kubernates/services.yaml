@@ -24,6 +24,8 @@ kind: Service
 metadata:
   name: echo-backend-service
   namespace: k8s-grpc-istio-test
+  labels:
+    istio.io/persistent-session: session-cookie
 spec:
   selector:
     app: echo-backend
