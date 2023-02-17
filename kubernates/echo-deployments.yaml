@@ -1,7 +1,14 @@
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: k8s-grpc-istio-test
+  labels:
+    istio-injection: enabled
+---
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: echo-backend-g1
+  name: first
   namespace: k8s-grpc-istio-test
 spec:
   replicas: 1
@@ -40,7 +47,7 @@ spec:
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: echo-backend-g2
+  name: second
   namespace: k8s-grpc-istio-test
 spec:
   replicas: 1

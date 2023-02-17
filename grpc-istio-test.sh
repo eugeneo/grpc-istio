@@ -52,7 +52,6 @@ done
 
 if [ $build_server -eq 1 ]; then
     bazel build //src-server:echo-server
-    mkdir _docker-build.tmp
     echo "Building Docker image"
     docker build -t ${SERVER_IMAGE_TAG} -f src-server/Dockerfile bazel-bin/src-server/
     kubectl rollout restart -f kubernates/echo-deployments.yaml

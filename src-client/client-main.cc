@@ -13,8 +13,7 @@
 
 using google::protobuf::TextFormat;
 
-constexpr absl::string_view kDefaultServiceAddress =
-    "xds:///echo-backend-service:4004";
+const std::string kDefaultServiceAddress = "xds:///echo-backend-service:4004";
 
 absl::optional<std::string> GetCookie(FrontendResponse res) {
   for (const auto &metadata : res.initial_metadata()) {
@@ -83,27 +82,43 @@ int main(int argc, char *argv[]) {
   auto channel =
       grpc::CreateChannel(address, grpc::InsecureChannelCredentials());
   auto client = FrontendService::NewStub(std::move(channel));
-  auto cookies = GetCookies(client, kDefaultServiceAddress, 100, {});
-  if (!cookies.ok()) {
-    std::cerr << cookies.status() << std::endl;
-    return 1;
-  }
-  auto cookie = FindHostCookie(*cookies, "g2");
-  if (!cookie.has_value()) {
-    std::cerr << "Cookie for a host was not found" << cookie.has_value()
-              << std::endl;
-    return 1;
-  }
-  std::cout << *cookie << std::endl;
-  auto status =
-      GetCookies(client, kDefaultServiceAddress, 100, {{"cookie", *cookie}});
-  if (!cookies.ok()) {
-    std::cerr << cookies.status() << std::endl;
-    return 1;
-  }
-  for (const auto &host_header : *status) {
-    std::cout << "!" << host_header.first << ": " << host_header.second
+  grpc::ClientContext ctx;
+  GetCookieRequest req;
+  GetCookieResponse res;
+  req.set_cluster_url(kDefaultServiceAddress);
+  req.set_host_substring("second");
+  req.set_max_requests(200);
+  auto status = client->GetCookies(&ctx, req, &res);
+  if (status.ok()) {
+    std::string message;
+    TextFormat::PrintToString(res, &message);
+    std::cout << message << std::endl;
+  } else {
+    std::cerr << absl::StrFormat("Error [%d] %s (%s)", status.error_code(),
+                                 status.error_message(), status.error_details())
               << std::endl;
   }
+  // auto cookies = GetCookies(client, kDefaultServiceAddress, 100, {});
+  // if (!cookies.ok()) {
+  //   std::cerr << cookies.status() << std::endl;
+  //   return 1;
+  // }
+  // auto cookie = FindHostCookie(*cookies, "g2");
+  // if (!cookie.has_value()) {
+  //   std::cerr << "Cookie for a host was not found" << cookie.has_value()
+  //             << std::endl;
+  //   return 1;
+  // }
+  // std::cout << *cookie << std::endl;
+  // auto status =
+  //     GetCookies(client, kDefaultServiceAddress, 100, {{"cookie", *cookie}});
+  // if (!cookies.ok()) {
+  //   std::cerr << cookies.status() << std::endl;
+  //   return 1;
+  // }
+  // for (const auto &host_header : *status) {
+  //   std::cout << "!" << host_header.first << ": " << host_header.second
+  //             << std::endl;
+  // }
   return 0;
 }

@@ -1,3 +1,10 @@
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: k8s-grpc-istio-test
+  labels:
+    istio-injection: enabled
+---
 apiVersion: networking.istio.io/v1alpha3
 kind: DestinationRule
 metadata:
@@ -26,8 +33,8 @@ spec:
         - destination:
             host: echo-backend-service
             subset: g1
-          weight: 90
+          weight: 95
         - destination:
             host: echo-backend-service
             subset: g2
-          weight: 10
+          weight: 5
