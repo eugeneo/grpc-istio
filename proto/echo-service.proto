@@ -27,49 +27,34 @@ message FrontendRequest {
   string backend_url = 1;
   uint32 num_requests = 2;
   repeated Header metadata = 3;
+  enum Method {
+    echo1 = 0;
+    echo2 = 1;
+  }
+  optional Method method = 4;
 }
 
 message FrontendResponse {
   string peer = 1;
-  repeated Header initial_metadata = 2;
-  repeated Header trailing_metadata = 3;
+  optional string cookie = 2;
   message ResponseOrError {
     oneof ResponseOrErrorUnion {
       EchoResponse response = 1;
       Error error = 2;
     }
   }
-  ResponseOrError response = 4;
+  ResponseOrError response = 3;
 }
 
 message FrontendResponses {
   repeated FrontendResponse responses = 1;
 }
 
-message GetCookieRequest {
-  string cluster_url = 1;
-  string host_substring = 2;
-  int32 max_requests = 3;
-}
-
-message GetCookieResponse {
-  optional string host = 1;
-  optional string cookie = 2;
-  optional Error error = 3;
-  uint32 requests = 4;
-  message HostData {
-    string host = 1;
-    string cookie = 2;
-    uint32 count = 3;
-  }
-  repeated HostData other_hosts = 5;
-}
-
 service EchoService {
   rpc SendEcho(EchoRequest) returns (EchoResponse);
+  rpc SendEcho2(EchoRequest) returns (EchoResponse);
 }
 
 service FrontendService {
   rpc CallBackend(FrontendRequest) returns (FrontendResponses);
-  rpc GetCookies(GetCookieRequest) returns (GetCookieResponse);
 }
