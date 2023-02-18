@@ -164,5 +164,13 @@ int main(int argc, char *argv[]) {
            .has_value()) {
     return 1;
   }
+  std::cout << std::endl;
+  std::cout << absl::StreamFormat("%d requests to Echo2 method without cookie",
+                                  kReqs)
+            << std::endl;
+  if (!CallBackend(client, kReqs, absl::nullopt, FrontendRequest_Method_echo2)
+           .has_value()) {
+    return 1;
+  }
   return 0;
 }
